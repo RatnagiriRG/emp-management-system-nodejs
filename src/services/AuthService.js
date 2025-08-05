@@ -87,13 +87,13 @@ class AuthService {
       }
 
       // Update last login
-      await this.userRepository.updateLastLogin(user._id);
+      await this.userRepository.updateLastLogin(this.getUserId(user));
 
       // Generate tokens
       const { accessToken, refreshToken } = this.generateTokens(user);
       
       // Save refresh token
-      await this.userRepository.updateRefreshToken(user._id, refreshToken);
+      await this.userRepository.updateRefreshToken(this.getUserId(user), refreshToken);
 
       return {
         user,
@@ -128,7 +128,7 @@ class AuthService {
       const tokens = this.generateTokens(user);
       
       // Save new refresh token
-      await this.userRepository.updateRefreshToken(user._id, tokens.refreshToken);
+      await this.userRepository.updateRefreshToken(this.getUserId(user), tokens.refreshToken);
 
       return {
         user,

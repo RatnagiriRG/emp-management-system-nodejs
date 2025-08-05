@@ -1,8 +1,15 @@
 const EmployeeRepository = require('../repositories/EmployeeRepository');
+const EmployeeRepositoryPostgres = require('../repositories/EmployeeRepositoryPostgres');
 
 class EmployeeService {
   constructor() {
-    this.employeeRepository = new EmployeeRepository();
+    // Choose repository based on database type
+    const dbType = process.env.DB_TYPE || 'mongodb';
+    if (dbType === 'postgres') {
+      this.employeeRepository = new EmployeeRepositoryPostgres();
+    } else {
+      this.employeeRepository = new EmployeeRepository();
+    }
   }
 
   // Create a new employee
