@@ -1,12 +1,26 @@
 const jwt = require('jsonwebtoken');
 const UserRepository = require('../repositories/UserRepository');
+const UserRepositoryPostgres = require('../repositories/UserRepositoryPostgres');
 
 class AuthService {
   constructor() {
-    this.userRepository = new UserRepository();
+    // Choose repository based on database type
+    const dbType = process.env.DB_TYPE || 'mongodb';
+    this.dbType = dbType;
+    if (dbType === 'postgres') {
+      this.userRepository = new UserRepositoryPostgres();
+    } else {
+      this.userRepository = new UserRepository();
+    }
+    
     this.jwtSecret = process.env.JWT_SECRET || 'your-super-secret-jwt-key';
     this.jwtExpire = process.env.JWT_EXPIRE || '24h';
     this.refreshTokenExpire = process.env.REFRESH_TOKEN_EXPIRE || '7d';
+  }
+
+  // Helper method to get user ID (handles both MongoDB _id and PostgreSQL id)
+  getUserId(user) {
+    return this.dbType === 'postgres' ? user.id : user._id;
   }
 
   // Register a new user
@@ -43,7 +57,7 @@ class AuthService {
       const { accessToken, refreshToken } = this.generateTokens(user);
       
       // Save refresh token
-      await this.userRepository.updateRefreshToken(user._id, refreshToken);
+      await this.userRepository.updateRefreshToken(this.getUserId(user), refreshToken);
 
       return {
         user,
@@ -168,8 +182,9 @@ class AuthService {
 
   // Generate JWT tokens
   generateTokens(user) {
+    const userId = this.getUserId(user);
     const payload = {
-      userId: user._id,
+      userId,
       username: user.username,
       email: user.email,
       role: user.role,
@@ -181,7 +196,7 @@ class AuthService {
     });
 
     const refreshToken = jwt.sign(
-      { userId: user._id },
+      { userId },
       this.jwtSecret,
       { expiresIn: this.refreshTokenExpire }
     );

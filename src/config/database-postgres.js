@@ -1,6 +1,7 @@
 const { Sequelize } = require('sequelize');
 
 let sequelize;
+let User, Employee;
 
 const connectDB = async () => {
   try {
@@ -21,10 +22,18 @@ const connectDB = async () => {
     await sequelize.authenticate();
     console.log('PostgreSQL Connected successfully');
 
+    // Initialize models
+    User = require('../models/UserPostgres')(sequelize);
+    Employee = require('../models/EmployeePostgres')(sequelize);
+
     // Sync models in development (create tables)
     if (process.env.NODE_ENV === 'development') {
       await sequelize.sync({ alter: true });
       console.log('Database synchronized');
+    } else {
+      // In production, just sync without altering existing tables
+      await sequelize.sync();
+      console.log('Database models synchronized');
     }
 
   } catch (error) {
@@ -40,4 +49,11 @@ const getSequelize = () => {
   return sequelize;
 };
 
-module.exports = { connectDB, getSequelize };
+const getModels = () => {
+  if (!User || !Employee) {
+    throw new Error('Models not initialized. Call connectDB() first.');
+  }
+  return { User, Employee };
+};
+
+module.exports = { connectDB, getSequelize, getModels };
