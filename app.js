@@ -39,12 +39,13 @@ app.use(errorHandler);
 
 // Start server
 app.listen(PORT, () => {
+  const databaseName = dbType === 'postgres' ? 'PostgreSQL' : 'MongoDB';
   console.log(`
     🚀 Employee Management System API is running!
     📍 Server: http://localhost:${PORT}
     📍 API Base: http://localhost:${PORT}/api
     📍 Health Check: http://localhost:${PORT}/api/health
-    🗄️  Database: MongoDB
+    🗄️  Database: ${databaseName}
     🌍 Environment: ${process.env.NODE_ENV || 'development'}
   `);
 });

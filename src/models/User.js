@@ -62,10 +62,8 @@ const userSchema = new mongoose.Schema({
   timestamps: true
 });
 
-// Index for better query performance
-userSchema.index({ username: 1 });
-userSchema.index({ email: 1 });
-userSchema.index({ employeeId: 1 });
+// Index for better query performance (only for non-unique fields)
+// username, email, and employeeId already have unique indexes
 
 // Virtual for full name
 userSchema.virtual('fullName').get(function() {

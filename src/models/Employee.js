@@ -66,9 +66,7 @@ const employeeSchema = new mongoose.Schema({
   timestamps: true
 });
 
-// Index for better query performance
-employeeSchema.index({ employeeId: 1 });
-employeeSchema.index({ email: 1 });
+// Index for better query performance (only for non-unique fields)
 employeeSchema.index({ department: 1 });
 
 // Virtual for full name
