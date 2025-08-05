@@ -81,6 +81,27 @@ src/
    npm start
    ```
 
+## 🚀 Deploy to Render PostgreSQL (FREE)
+
+### Quick Deploy in 10 Minutes
+
+1. **Create PostgreSQL database** on Render (FREE for 90 days)
+2. **Deploy web service** from GitHub  
+3. **Set environment variables**
+4. **Your API is live!**
+
+📖 **Deployment guide**: See [DEPLOY_NOW.md](./DEPLOY_NOW.md) for quick setup or [RENDER_POSTGRESQL_GUIDE.md](./RENDER_POSTGRESQL_GUIDE.md) for detailed instructions.
+
+### Environment Variables for Render
+```env
+NODE_ENV=production
+PORT=10000
+DB_TYPE=postgres
+DATABASE_URL=postgresql://admin:password@dpg-xxx.render.com/employee_management
+JWT_SECRET=your-strong-production-secret
+ALLOWED_ORIGINS=https://your-frontend-domain.com
+```
+
 ## API Endpoints
 
 ### Authentication

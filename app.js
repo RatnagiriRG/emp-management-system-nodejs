@@ -2,7 +2,17 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const cookieParser = require('cookie-parser');
-const connectDB = require('./src/config/database');
+
+// Database connection - choose based on DB_TYPE environment variable
+const dbType = process.env.DB_TYPE || 'mongodb';
+let connectDB;
+
+if (dbType === 'postgres') {
+  connectDB = require('./src/config/database-postgres').connectDB;
+} else {
+  connectDB = require('./src/config/database');
+}
+
 const routes = require('./src/routes');
 const { errorHandler, notFound } = require('./src/middleware/errorHandler');
 const { requestLogger, corsOptions } = require('./src/middleware/middleware');
@@ -10,7 +20,7 @@ const { requestLogger, corsOptions } = require('./src/middleware/middleware');
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// Connect to MongoDB
+// Connect to Database (MongoDB or PostgreSQL)
 connectDB();
 
 // Middleware
