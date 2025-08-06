@@ -23,15 +23,31 @@ class EmployeeService {
         }
       }
 
+      // Check if employee with this email already exists
+      try {
+        await this.employeeRepository.findByEmail(employeeData.email);
+        throw new Error('Employee with this email already exists');
+      } catch (error) {
+        // If "not found" error, that's good - employee doesn't exist
+        if (!error.message.includes('not found')) {
+          throw error; // Re-throw if it's a different error
+        }
+      }
+
       // Generate employee ID if not provided
       if (!employeeData.employeeId) {
         employeeData.employeeId = await this.generateEmployeeId();
-      }
-
-      // Check if employee already exists
-      const exists = await this.employeeRepository.exists(employeeData.email, employeeData.employeeId);
-      if (exists) {
-        throw new Error('Employee with this email or employee ID already exists');
+      } else {
+        // Check if provided employeeId already exists
+        try {
+          await this.employeeRepository.findByEmployeeId(employeeData.employeeId);
+          throw new Error('Employee with this employee ID already exists');
+        } catch (error) {
+          // If "not found" error, that's good - employee ID doesn't exist
+          if (!error.message.includes('not found')) {
+            throw error; // Re-throw if it's a different error
+          }
+        }
       }
 
       return await this.employeeRepository.create(employeeData);
@@ -128,23 +144,8 @@ class EmployeeService {
   // Generate unique employee ID
   async generateEmployeeId() {
     try {
-      const currentYear = new Date().getFullYear();
-      const prefix = `EMP${currentYear}`;
-      
-      // Find the last employee ID for current year
-      const lastEmployee = await this.employeeRepository.findAll(
-        { employeeId: { $regex: `^${prefix}` } },
-        { sortBy: 'employeeId', sortOrder: 'desc', limit: 1 }
-      );
-
-      let sequence = 1;
-      if (lastEmployee.employees.length > 0) {
-        const lastId = lastEmployee.employees[0].employeeId;
-        const lastSequence = parseInt(lastId.substring(prefix.length));
-        sequence = lastSequence + 1;
-      }
-
-      return `${prefix}${sequence.toString().padStart(4, '0')}`;
+      // Use the repository's method instead of direct MongoDB syntax
+      return await this.employeeRepository.generateNextEmployeeId();
     } catch (error) {
       throw new Error(`Error generating employee ID: ${error.message}`);
     }

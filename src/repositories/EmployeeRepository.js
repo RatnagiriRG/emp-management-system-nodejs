@@ -193,6 +193,28 @@ class EmployeeRepository {
       throw new Error(`Error checking employee existence: ${error.message}`);
     }
   }
+
+  // Generate next employee ID
+  async generateNextEmployeeId() {
+    try {
+      const currentYear = new Date().getFullYear();
+      const yearPrefix = `EMP${currentYear}`;
+      
+      const lastEmployee = await Employee.findOne({
+        employeeId: { $regex: `^${yearPrefix}` }
+      }).sort({ employeeId: -1 });
+
+      let nextSequence = 1;
+      if (lastEmployee) {
+        const lastSequence = parseInt(lastEmployee.employeeId.replace(yearPrefix, ''));
+        nextSequence = lastSequence + 1;
+      }
+
+      return `${yearPrefix}${nextSequence.toString().padStart(4, '0')}`;
+    } catch (error) {
+      throw new Error(`Error generating employee ID: ${error.message}`);
+    }
+  }
 }
 
 module.exports = EmployeeRepository;
